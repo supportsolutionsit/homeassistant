@@ -1,0 +1,45 @@
+blueprint:
+  name: ZHA - Tuya button (TS0041)
+  description: Automate your Tuya button (TS0041) via zha_event.
+  domain: automation
+  input:
+    tuya_button:
+      name: Target Tuya button device
+      selector:
+        device:
+          integration: zha
+          model: TS0041
+    short_press:
+      name: Short (single) press
+      default: []
+      selector:
+        action: {}
+    double_press:
+      name: Double press
+      default: []
+      selector:
+        action: {}
+    long_press:
+      name: Long press
+      default: []
+      selector:
+        action: {}
+
+mode: restart
+
+triggers:
+  - trigger: event
+    event_type: zha_event
+    event_data:
+      device_id: !input tuya_button
+
+actions:
+  - variables:
+      command: "{{ trigger.event.data.command }}"
+  - choose:
+      - conditions: "{{ command == 'single' }}"
+        sequence: !input short_press
+      - conditions: "{{ command == 'double' }}"
+        sequence: !input double_press
+      - conditions: "{{ command in ['hold', 'long'] }}"
+        sequence: !input long_press
